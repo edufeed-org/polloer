@@ -6,5 +6,8 @@ export default defineConfig({
 	server: {
 		host: true
 	},
+	preview: {
+		allowedHosts: true
+	},
 	plugins: [tailwindcss(), sveltekit()]
 });
