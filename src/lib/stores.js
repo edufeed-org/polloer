@@ -23,3 +23,5 @@ export async function initializeNDK() {
   
   return ndkInstance;
 }
+
+export const user = writable(null);

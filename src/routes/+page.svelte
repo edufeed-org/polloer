@@ -1,16 +1,15 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { ndk, connected } from '$lib/stores';
+	import { ndk, connected, user, ndkReady } from '$lib/stores';
 	import { NDKEvent, NDKNip07Signer, NDKPrivateKeySigner } from '@nostr-dev-kit/ndk';
 	import { writable } from 'svelte/store';
 	import QRCode from 'qrcode';
 
 	let question = '';
-	let questionId = '';
+	let questionId = writable(''); ;
 	let questionShortId = 0;
-	let qrCodeUrl = '';
+	let qrCodeUrl = writable('');
 	let timer = 0;
-	let comments = writable([]);
 	let votingEnabled = false;
 	let sessionId = '';
 
@@ -32,8 +31,9 @@
 			tags: [['d', questionShortId + '']]
 		});
 		await event.publish();
-		questionId = event.id;
-		qrCodeUrl = await QRCode.toDataURL(`${window.location.origin}/q/${questionId}`);
+		console.log("event id", event.id)
+		$questionId = event.id;
+		$qrCodeUrl = await QRCode.toDataURL(`${window.location.origin}/q/${$questionId}`);
 	}
 
 	function startTimer() {
@@ -47,21 +47,46 @@
 		}, 1000);
 	}
 
-	function login() {
+	async function login() {
 		if (window.nostr) {
 			const signer = new NDKNip07Signer();
 			$ndk.signer = signer;
+			$user = await signer.user();
 		} else {
-			const signer = new NDKPrivateKeySigner();
-			const privateKey = signer.generatePrivateKey(); // Generates a new private key
-			console.log('Generated Private Key:', privateKey);
+			const storedPrivateKey = window.localStorage.getItem('nostrPrivateKey');
+			if (storedPrivateKey) {
+				const privateKey = JSON.parse(storedPrivateKey);
+				console.log("stored private key", privateKey)
+				const signer = new NDKPrivateKeySigner(privateKey);
+				$ndk.signer = signer;
+				$user = await signer.user();
+			} else {
+				console.log('No private key found, generating a new one...');
+				const privateKey = NDKPrivateKeySigner.generate();
+				const signer = new NDKPrivateKeySigner(privateKey.privateKey);
+				console.log('Generated Private Key:', privateKey);
+				$ndk.signer = signer;
+				$user = await signer.user();
+				window.localStorage.setItem('nostrPrivateKey', JSON.stringify(privateKey.privateKey));
+			}
 		}
 	}
+
+	$effect(() => {
+		if ($ndkReady) {
+			if ($ndk.activeUser) {
+				console.log('User:', $user);
+			}
+		}
+	});
 </script>
 
 <div class="main-layout">
-	<button class="btn btn-success" onclick={() => login()}>Login</button>
-	{#if !questionId}
+	{#if !$user}
+		<button class="btn btn-success" onclick={() => login()}>Login</button>
+	{/if}
+
+	{#if !$questionId}
 		<div class="mx-auto p-4">
 			<h1 class="mb-4 text-2xl font-bold">Join a session!</h1>
 			{#if $connected}
@@ -77,7 +102,8 @@
 		<h1 class="mb-4 text-2xl font-bold">Ask a Question</h1>
 
 		{#if $connected}
-			{#if !questionId}
+		{#key $questionId}
+			{#if $questionId === ''}
 				<div>
 					<textarea
 						class="mb-4 w-full rounded border p-2"
@@ -86,15 +112,13 @@
 					></textarea>
 					<button class="btn btn-primary rounded" onclick={postQuestion}> Post Question </button>
 				</div>
-			{/if}
-
-			{#if questionId}
+			{:else}
 				<div class="qr-share mt-4">
 					<h2 class="text-xl font-bold">Share Your Question</h2>
-					<img src={qrCodeUrl} alt="QR Code" class="mt-2" />
+					<img src={$qrCodeUrl} alt="QR Code" class="mt-2" />
 					<p class="mb-5 text-center">Share this QR code or link:</p>
 					<p class="text-center">
-						<a href={`/q/${questionId}`}>{`/q/`}<span class="font-bold">{questionShortId}</span></a>
+						<a href={`/q/${$questionId}`}>{`/q/`}<span class="font-bold">{questionShortId}</span></a>
 					</p>
 					<h3 class="text-center text-xl">{questionShortId}</h3>
 					<div class="mt-4">
@@ -113,8 +137,7 @@
 					<p>Users can now vote on the question.</p>
 				</div>
 			{/if}
-		{:else}
-			<p>Connecting to Nostr relay...</p>
+		{/key}
 		{/if}
 	</div>
 </div>
@@ -133,7 +156,6 @@
 	.qr-share img {
 		width: 100%;
 		border: 3px solid #eee;
-		aspect-ratio: 4 / 3;
 	}
 	.main-layout {
 		margin: auto;
