@@ -14,14 +14,16 @@
 	let sessionId = '';
 
 	async function joinSession() {
-		console.log('join ' + questionShortId);
+		console.log('join ' + sessionId);
 		const filter = {
-			kinds: [2222],
-			'#d': [questionShortId + ''], // filter by `d` tag
-			limit: 1
+			kinds: [1342],
+			'#d': [sessionId + ''], // filter by `d` tag
 		};
+		console.log(filter)
 		const question = await $ndk.fetchEvent(filter);
+		console.log('question', question);
 		goto('/q/' + question.id);
+		login()
 	}
 	async function postQuestion() {
 		questionShortId = 10000000 + Math.floor(Math.random() * 90000000);
@@ -92,7 +94,7 @@
 			{#if $connected}
 				<div class="join">
 					<input type="number" class="border p-2" placeholder="Session id" bind:value={sessionId} />
-					<button class="btn btn-primary rounded" onclick={joinSession}> Join </button>
+					<button class="btn btn-primary rounded" onclick={() => joinSession()}> Join </button>
 				</div>
 			{/if}
 		</div>
