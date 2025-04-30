@@ -32,6 +32,9 @@ export async function login() {
             userStore.set(signedUser)
 
             window.localStorage.setItem('nostrPrivateKey', JSON.stringify(privateKey.privateKey));
+            ndk.signer = signer;
+            console.log("ndk signer", ndk)
+            ndkStore.set(ndk)
         }
     }
 }

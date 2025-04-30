@@ -1,11 +1,14 @@
 <script>
-	let { event } = $props();
+	let { event, showReactions } = $props();
 
 	import { onMount } from 'svelte';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { ndk, ndkReady, user } from '$lib/stores';
 	import { writable } from 'svelte/store';
 	import { login } from '$lib';
+
+    console.log("show reactions", showReactions)
+
 
 	let reactions = writable([]);
 	let reacted = writable(window.localStorage.getItem(event.id));
@@ -53,7 +56,7 @@
 			<span>👍 {$reactions.length}</span>
 			<span class="thanks">Danke für deinen Vote!</span>
             <!-- <button onclick={() => deleteVote()} class="btn">Vote zurückziehen</button> -->
-		{:else}
+		{:else if showReactions === "true"}
 			<button onclick={() => sendReaction()} class="like">👍</button>
 			<span>{$reactions.length}</span>
 		{/if}
