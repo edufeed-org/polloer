@@ -101,13 +101,14 @@
 				</div>
 			{:else}
 				<div class="qr-share mt-4">
-					<h2 class="text-xl font-bold">Share Your Question</h2>
+					<h2 class="text-xl font-bold">Diese Sammlung teilen</h2>
 					<h3 class="text-center short-id">{questionShortId}</h3>
 					<img src={$qrCodeUrl} alt="QR Code" class="mt-2" />
-					<p class="mb-1 text-center">Share this QR code or link:</p>
+					<p class="mb-1 text-center">Diesen QR-Code oder Link teilen:</p>
 					<p class="text-center mb-2 text-xl">
 						<a href={`/q/${$questionId}`}>{`${window.location.origin}/q/`}<span class="font-bold">{questionShortId}</span></a>
 					</p>
+					<!--
 					<div class="mt-4">
 						<label for="timer" class="mb-2 block">Set Timer (seconds):</label>
 						<input type="number" id="timer" class="rounded border p-2" bind:value={timer} />
@@ -115,13 +116,14 @@
 							Start Timer
 						</button>
 					</div>
+					-->
 				</div>
 			{/if}
 
 			{#if votingEnabled}
 				<div class="mt-4">
-					<h2 class="text-xl font-bold">Voting is now enabled!</h2>
-					<p>Users can now vote on the question.</p>
+					<h2 class="text-xl font-bold">Abstimmung ist jetzt aktiv!</h2>
+					<p>Es können jetzt Stimmen abgegeben werden.</p>
 				</div>
 			{/if}
 		{/key}
