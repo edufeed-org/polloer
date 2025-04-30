@@ -8,6 +8,7 @@
 	import { Carta, MarkdownEditor } from 'carta-md';
 	import 'carta-md/default.css'; /* Default theme */
 	import DOMPurify from 'dompurify';
+	import { Confetti } from "svelte-confetti"
 
 	// Create a new instance of Carta (you might also want to add a sanitizer if you're processing user input)
 	let carta = new Carta({
@@ -91,7 +92,6 @@
 	{/if}
 	<div class="mx-auto p-4">
 		<h1 class="mb-4 text-2xl font-bold">Eine Ideensammlung starten</h1>
-
 		{#if $connected}
 		{#key $questionId}
 			{#if $questionId === ''}
@@ -103,6 +103,7 @@
 				<div class="qr-share mt-4">
 					<h2 class="text-xl font-bold">Diese Sammlung teilen</h2>
 					<h3 class="text-center short-id">{questionShortId}</h3>
+					<div class="flex justify-center"><Confetti amount="600" size="15" cone x={[-4.5, 4.5]} y={[-1.5, 1.5]} delay={[0, 1000]} /></div>
 					<img src={$qrCodeUrl} alt="QR Code" class="mt-2" />
 					<p class="mb-1 text-center">Diesen QR-Code oder Link teilen:</p>
 					<p class="text-center mb-2 text-xl">

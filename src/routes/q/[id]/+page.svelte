@@ -1,4 +1,6 @@
 <script>
+	import { Confetti } from 'svelte-confetti';
+
 	/** @type {import('./$types').PageProps} */
 	let { data } = $props();
 
@@ -18,6 +20,7 @@
 		if (!$comment) {
 			return;
 		}
+		submit.set(true);
 		const commentEvent = new NDKEvent($ndk, {
 			kind: 2222,
 			content: $comment,
@@ -25,6 +28,7 @@
 		});
 		commentEvent.publish();
 		comment.set('');
+		setTimeout(() => submit.set(false), 3000);
 	}
 
 	/**
@@ -49,6 +53,7 @@
 	}
 
 	let comment = writable('');
+	let submit = writable(false);
 	let comments = writable([]);
 	let question = writable();
 	const [kind, pubkey, d] = data.id.split(':');
@@ -103,6 +108,9 @@
 			<h1 class="pt-15 text-xl font-bold">Meine Idee hinzufügen</h1>
 			<MarkdownEditor bind:value={$comment} {carta} />
 			<button class="btn btn-primary mt-5 mb-10" onclick={() => submitComment()}>Hinzufügen</button>
+			{#if $submit === true}
+				<div class="flex justify-center"><Confetti amount="50"} /></div>
+			{/if}
 		</div>
 	{:else}
 		<p>Loading...</p>
@@ -110,8 +118,8 @@
 
 	<div class="mx-auto flex w-full flex-col items-center justify-center gap-5">
 		{#key $showReactions}
-			{#each $comments.sort((a, b) => a.created_at - b.created_at).reverse() as event}
-				<Comment {event} showReactions={$showReactions} />
+		{#each $comments.sort((a, b) => b.created_at - a.created_at) as event}
+			<Comment event={event} showReactions={$showReactions}  />
 			{/each}
 		{/key}
 	</div>
