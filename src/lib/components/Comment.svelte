@@ -8,6 +8,7 @@
 	import { login } from '$lib';
 
 	let reactions = writable([]);
+	let reacted = writable(window.localStorage.getItem(event.id));
 
 	async function sendReaction() {
 		const reactionEvent = new NDKEvent($ndk, {
@@ -16,9 +17,11 @@
 			tags: [['e', event.id]]
 		});
 		await reactionEvent.publish();
-        const r = await $ndk.fetchEvents({kinds: [7], "#e": [event.id]})
-        console.log("r", r)
-        $reactions = Array.from(r);
+		const r = await $ndk.fetchEvents({ kinds: [7], '#e': [event.id] });
+		console.log('r', r);
+		$reactions = Array.from(r);
+		window.localStorage.setItem(event.id, 'true');
+		$reacted = true;
 	}
 
 	onMount(async () => {
@@ -26,15 +29,21 @@
 			console.log('no user, logging in');
 			login();
 		}
-        const r = await $ndk.fetchEvents({kinds: [7], "#e": [event.id]})
-        console.log("r", r)
-        $reactions = Array.from(r);
+		const r = await $ndk.fetchEvents({ kinds: [7], '#e': [event.id] });
+		console.log('r', r);
+		$reactions = Array.from(r);
 	});
-
 </script>
 
 <div class="w-full border p-2">
 	<p>{event.content}</p>
-	<button onclick={() => sendReaction()}>👍</button>
-	<p>Reaction Count: {$reactions.length}</p>
+	<div class="flex gap-2">
+		{#if $reacted}
+			<span>👍 {$reactions.length}</span>
+			<span>Danke für deinen Vote!</span>
+		{:else}
+			<button onclick={() => sendReaction()}>👍</button>
+			<span>{$reactions.length}</span>
+		{/if}
+	</div>
 </div>
