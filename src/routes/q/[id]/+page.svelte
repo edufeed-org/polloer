@@ -1,13 +1,13 @@
 <script>
-	import { Confetti } from 'svelte-confetti';
+	import { onDestroy } from 'svelte';
 
 	/** @type {import('./$types').PageProps} */
 	let { data } = $props();
 
 	import Comment from '$lib/components/Comment.svelte';
-	import { ndk, ndkReady, user } from '$lib/stores';
-	import { NDKEvent } from '@nostr-dev-kit/ndk';
-	import { writable } from 'svelte/store';
+	import { ndk, user } from '$lib/stores';
+	import { NDKEvent, NDKKind } from '@nostr-dev-kit/ndk';
+	import { derived, writable } from 'svelte/store';
 	import { Carta, Markdown, MarkdownEditor } from 'carta-md';
 	import 'carta-md/default.css'; /* Default theme */
 	import DOMPurify from 'dompurify';
@@ -16,6 +16,7 @@
 	let carta = new Carta({
 		sanitizer: DOMPurify.sanitize
 	});
+
 	function submitComment() {
 		if (!$comment) {
 			return;
@@ -24,61 +25,71 @@
 		const commentEvent = new NDKEvent($ndk, {
 			kind: 2222,
 			content: $comment,
-			tags: [['E', data.id]]
+			tags: [['A', data.id]]
 		});
 		commentEvent.publish();
 		comment.set('');
-		setTimeout(() => submit.set(false), 3000);
-	}
-
-	/**
-	 * Filters an array of objects to keep only unique objects based on their id property
-	 * @param {Array} array - The array of objects to filter
-	 * @returns {Array} - A new array containing only unique objects by id
-	 */
-	function getUniqueById(array) {
-		// Create a Map to track unique objects by their id
-		const uniqueMap = new Map();
-
-		// Loop through the array and add each object to the map with its id as the key
-		// This automatically overrides any previous entries with the same id
-		array.forEach((item) => {
-			if (item && item.id !== undefined) {
-				uniqueMap.set(item.id, item);
-			}
-		});
-
-		// Convert the Map values back to an array
-		return Array.from(uniqueMap.values());
 	}
 
 	let comment = writable('');
 	let submit = writable(false);
-	let comments = writable([]);
-	let question = writable();
 	const [kind, pubkey, d] = data.id.split(':');
-	const showReactions = writable(false);
+	const showReactions = writable('false');
+	const comments = writable([]);
+
+	let commentStore = $ndk.storeSubscribe(
+		{ kinds: [2222], '#A': [data.id] },
+		{
+			onEvent: (event) => {
+				console.log('Event received', event);
+				$comments = [event, ...$comments];
+			},
+			onEose: () => console.log('Subscription EOSE reached'),
+			closeOnEose: false,
+			autoStart: true
+		}
+	);
+	commentStore.ref();
+
+	let questionStore = $ndk.storeSubscribe({ kinds: [Number(kind)], authors: [pubkey], '#d': [d] });
+	questionStore.ref();
+
+	let question = derived(
+		[questionStore],
+		([$questionStore]) => {
+			if ($questionStore.length === 0) {
+				return null;
+			}
+
+			$questionStore.sort((a, b) => {
+				return b.created_at - a.created_at;
+			});
+			const reactionTag = $questionStore[0].tags.find((t) => t[0] === 'reactions');
+			if (reactionTag && reactionTag[1] === 'true') {
+				console.log('reactions enabled');
+				$showReactions = 'true';
+			}
+			console.log('question', $questionStore[0]);
+			return $questionStore[0];
+		},
+		null
+	);
+
+	onDestroy(() => {
+		commentStore.unsubscribe();
+		questionStore.unsubscribe();
+	});
 
 	$effect(() => {
-		if ($ndkReady) {
-			console.log('ndk ready');
-			const sub = $ndk.subscribe({ kinds: [2222], '#E': [data.id] });
-			sub.on('event', (event) => {
-				console.log(event);
-				const unique = getUniqueById([...$comments, event]);
-				$comments = [...unique];
-				console.log(`${event.content}`);
-			});
+		if ($ndk.signer) {
+			console.log('got a signer');
+			console.log('start subscription');
+			commentStore.startSubscription();
 
-			const questionSub = $ndk.subscribe({ kinds: [Number(kind)], authors: [pubkey], '#d': [d] });
-			questionSub.on('event', (event) => {
-				$question = event;
-				if ($question?.tags.find((t) => t[0] === 'reactions')[1] === 'true') {
-					console.log('reactions enabled');
-					$showReactions = 'true';
-				}
-			});
+			questionStore.startSubscription();
+			console.log('comment store', $commentStore);
 		}
+		console.log('user', $user);
 	});
 
 	async function startReactions(event) {
@@ -93,35 +104,34 @@
 </script>
 
 <div class="main-layout mx-auto flex w-3/4 flex-col items-center justify-center">
-	{#if $question}
-		{#if $question.pubkey === $user.pubkey && $showReactions === false}
-			<button class="btn btn-primary mb-4" onclick={() => startReactions($question)}
-				>Reaktionen/Voting aktivieren</button
-			>
-		{/if}
-		<div class="question mb-4 w-full rounded border p-4 text-xl">
-			<h2 class="text-xl font-bold">Frage / Thema:</h2>
-			<Markdown {carta} value={$question.content} />
-		</div>
-
-		<div class="mb-2 flex w-full flex-col items-center justify-center gap-2">
-			<h1 class="pt-15 text-xl font-bold">Meine Idee hinzufügen</h1>
-			<MarkdownEditor bind:value={$comment} {carta} />
-			<button class="btn btn-primary mt-5 mb-10" onclick={() => submitComment()}>Hinzufügen</button>
-			{#if $submit === true}
-				<div class="flex justify-center"><Confetti amount="50"} /></div>
+	{#key $question?.pubkey}
+		{#if $question}
+			{#if $user && $question?.pubkey === $user?.pubkey && $showReactions === "false"}
+				<button class="btn btn-primary mb-4" onclick={() => startReactions($question)}
+					>Reaktionen/Voting aktivieren</button
+				>
 			{/if}
-		</div>
-	{:else}
-		<p>Loading...</p>
-	{/if}
+			<div class="question mb-4 w-full rounded border p-4 text-xl">
+				<h2 class="text-xl font-bold">Frage / Thema:</h2>
+				<Markdown {carta} value={$question.content} />
+			</div>
+
+			<div class="mb-2 flex w-full flex-col items-center justify-center gap-2">
+				<h1 class="pt-15 text-xl font-bold">Meine Idee hinzufügen</h1>
+				<MarkdownEditor bind:value={$comment} {carta} />
+				<button class="btn btn-primary mt-5 mb-10" onclick={() => submitComment()}
+					>Hinzufügen</button
+				>
+			</div>
+		{:else}
+			<p>Loading...</p>
+		{/if}
+	{/key}
 
 	<div class="mx-auto flex w-full flex-col items-center justify-center gap-5">
-		{#key $showReactions}
-		{#each $comments.sort((a, b) => b.created_at - a.created_at) as event}
-			<Comment event={event} showReactions={$showReactions}  />
-			{/each}
-		{/key}
+		{#each $commentStore as event}
+			<Comment {event} showReactions={$showReactions} />
+		{/each}
 	</div>
 </div>
 

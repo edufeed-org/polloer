@@ -1,27 +1,21 @@
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { writable, derived } from "svelte/store";
-import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
+import { NDKUser } from "@nostr-dev-kit/ndk";
 
 export let connected = writable(false);
 
-export const ndk = writable(new NDKSvelte());
+const _ndk = new NDKSvelte({
+  explicitRelayUrls: [
+    'wss://relay-rpi.edufeed.org'
+  ],
+});
 
-export const ndkReady = derived(ndk, $ndk => $ndk !== null);
+export const ndk = writable(_ndk)
 
-export async function initializeNDK() {
-    const signer = new NDKNip07Signer
-  const ndkInstance = new NDKSvelte({
-    explicitRelayUrls: [
-      'wss://relay-rpi.edufeed.org'
-    ],
-  });
-  
-  await ndkInstance.connect();
-
-//   ndkInstance.signer = signer;
-  ndk.set(ndkInstance);
-  
-  return ndkInstance;
-}
-
-export const user = writable(null);
+export const user = derived(ndk, $ndk => {
+  console.log("updating user")
+  if ($ndk.signer !== undefined) {
+    return new NDKUser($ndk.signer);
+  }
+  return undefined;
+});
