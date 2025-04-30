@@ -16,24 +16,21 @@
 			tags: [['e', event.id]]
 		});
 		await reactionEvent.publish();
+        const r = await $ndk.fetchEvents({kinds: [7], "#e": [event.id]})
+        console.log("r", r)
+        $reactions = Array.from(r);
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		if (!$user) {
 			console.log('no user, logging in');
 			login();
 		}
+        const r = await $ndk.fetchEvents({kinds: [7], "#e": [event.id]})
+        console.log("r", r)
+        $reactions = Array.from(r);
 	});
 
-	$effect(() => {
-		if ($ndkReady) {
-			const sub = $ndk.subscribe({ kinds: [7], '#e': [event.id] });
-			sub.on('event', (e) => {
-				$reactions = [...$reactions, e];
-				console.log(`${e.content}`);
-			});
-		}
-	});
 </script>
 
 <div class="w-full border p-2">
