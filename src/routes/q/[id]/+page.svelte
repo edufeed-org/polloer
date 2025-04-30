@@ -61,7 +61,7 @@
 		<p>Error fetching question: {error.message}</p>
 	{/await}
 
-	<div class="mx-auto flex w-full flex-col items-center justify-center gap-2">
+	<div class="mx-auto flex w-full flex-col items-center justify-center gap-5">
 		{#each $comments as event}
 			<Comment {event} />
 		{/each}
@@ -80,7 +80,7 @@
         height: 100%;
     }
 		.question {
-				border-radius: 10px;
+				border-radius: 20px;
 				border-color: #ccc;
 		}
 </style>

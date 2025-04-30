@@ -49,16 +49,32 @@
 	});
 </script>
 
-<div class="w-full border p-2">
+<div class="comment w-full border p-2">
 	<p>{event.content}</p>
-	<div class="flex gap-2">
+	<div class="flex gap-2 reactions">
 		{#if $reacted}
 			<span>👍 {$reactions.length}</span>
-			<span>Danke für deinen Vote!</span>
+			<span class="thanks">Danke für deinen Vote!</span>
             <button onclick={() => deleteVote()} class="btn">Vote zurückziehen</button>
 		{:else}
-			<button onclick={() => sendReaction()}>👍</button>
+			<button onclick={() => sendReaction()} class="like">👍</button>
 			<span>{$reactions.length}</span>
 		{/if}
 	</div>
 </div>
+<style>
+		.like {
+				cursor: pointer;
+		}
+		.reactions {
+				padding-top: 10px;
+				align-items: center;
+		}
+		.thanks {
+				color: #777;
+		}
+	.comment {
+      border-radius: 20px;
+      border-color: #ccc;
+	}
+</style>
