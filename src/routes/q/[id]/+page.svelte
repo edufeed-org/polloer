@@ -3,7 +3,7 @@
 	let { data } = $props();
 
 	import Comment from '$lib/components/Comment.svelte';
-	import { ndk, ndkReady } from '$lib/stores';
+	import { ndk, ndkReady, user } from '$lib/stores';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { writable } from 'svelte/store';
 	import { Carta, Markdown, MarkdownEditor } from 'carta-md';
@@ -70,8 +70,9 @@
 
 <div class="main-layout mx-auto flex w-3/4 flex-col items-center justify-center">
 			{#if $question}
+			{#if $question.pubkey === $user.pubkey && $showReactions === false}
 			<button class="btn btn-primary mb-4" onclick={() => startReactions($question)}>Reaktionen/Voting aktivieren</button>
-
+			{/if}
 				<div class="question mb-4 w-full rounded border p-4 text-xl">
 					<h2 class="text-xl font-bold">Frage / Thema:</h2>
 					<Markdown {carta} value={$question.content} />
