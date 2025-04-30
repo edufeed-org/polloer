@@ -39,7 +39,7 @@
 			const sub = $ndk.subscribe({ kinds: [2222], '#E': [data.id] });
 			sub.on('event', (event) => {
 				console.log(event);
-				$comments = [...$comments, event];
+				$comments = Array.from(new Set([...$comments, event]));
 				console.log(`${event.content}`);
 			});
 
