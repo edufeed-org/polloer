@@ -15,12 +15,16 @@
 		sanitizer: DOMPurify.sanitize
 	});
 	function submitComment() {
+		if(!$comment) {
+			return;
+		}
 		const commentEvent = new NDKEvent($ndk, {
 			kind: 2222,
 			content: $comment,
 			tags: [['E', data.id]]
 		});
 		commentEvent.publish();
+		comment.set('');
 	}
 
 	let comment = writable('');
@@ -43,15 +47,14 @@
 		{#await $ndk.fetchEvent(data.id) then question}
 			{#if question}
 				<div class="question mb-4 w-full rounded border p-4 text-xl">
-					<h2>Question:<br />
-						<Markdown {carta} value={question.content} />
-				</h2>
+					<h2 class="text-xl font-bold">Frage / Thema:</h2>
+					<Markdown {carta} value={question.content} />
 				</div>
 
 				<div class="mb-2 flex w-full flex-col items-center justify-center gap-2">
-					<h1 class="text-xl">Ideensammlung</h1>
+					<h1 class="text-xl font-bold pt-15">Meine Idee hinzufügen</h1>
 					<MarkdownEditor bind:value={$comment} {carta} />
-					<button class="btn btn-primary mb-10" onclick={() => submitComment()}>Absenden</button>
+					<button class="btn btn-primary mb-10 mt-5" onclick={() => submitComment()}>Hinzufügen</button>
 				</div>
 			{:else}
 				<p>Loading...</p>

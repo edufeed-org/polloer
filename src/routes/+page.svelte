@@ -79,25 +79,25 @@
 
 	{#if !$questionId}
 		<div class="mx-auto p-4">
-			<h1 class="mb-4 text-2xl font-bold">Join a session!</h1>
+			<h1 class="mb-4 text-2xl font-bold">An einer Ideensammlung teilnehmen</h1>
 			{#if $connected}
 				<div class="join">
-					<input type="number" class="border p-2" placeholder="Session id" bind:value={sessionId} />
-					<button class="btn btn-primary rounded" onclick={() => joinSession()}> Join </button>
+					<input type="number" class="border p-2" placeholder="12345678" bind:value={sessionId} />
+					<button class="btn btn-primary rounded" onclick={() => joinSession()}> Teilnehmen </button>
 				</div>
 			{/if}
 		</div>
 		<div class="divider" />
 	{/if}
 	<div class="mx-auto p-4">
-		<h1 class="mb-4 text-2xl font-bold">Ask a Question</h1>
+		<h1 class="mb-4 text-2xl font-bold">Eine Ideensammlung starten</h1>
 
 		{#if $connected}
 		{#key $questionId}
 			{#if $questionId === ''}
-				<div>
+				<div class="flex flex-col justify-center items-center">
 					<MarkdownEditor bind:value={$question} {carta} />
-					<button class="btn btn-primary rounded mt-5" onclick={postQuestion}> Post Question </button>
+					<div><button class="btn btn-primary rounded mt-5" onclick={postQuestion}> Starten </button></div>
 				</div>
 			{:else}
 				<div class="qr-share mt-4">
@@ -130,16 +130,12 @@
 </div>
 
 <style>
-	/* Optional styling */
-	:global(.carta-font-code) {
-			font-family: 'Monaco', monospace;
-			font-size: 1.1rem;
-			line-height: 1.1rem;
-			letter-spacing: normal;
-	}
 	:global(.carta-input) {
-  	height: 150px !important;
+			height: 150px !important;
 	}
+  :global(.carta-editor) {
+      width: 100% !important;
+  }
 	input[type='number']::-webkit-inner-spin-button,
 	input[type='number']::-webkit-outer-spin-button {
 		-webkit-appearance: none;
