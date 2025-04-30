@@ -57,7 +57,7 @@
 	{/key}
 
 	<div class="mx-auto flex w-full flex-col items-center justify-center gap-5">
-		{#each $comments as event}
+		{#each $comments.sort((a, b) => a.created_at - b.created_at).reverse() as event}
 			<Comment {event} />
 		{/each}
 	</div>
