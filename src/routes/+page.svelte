@@ -36,7 +36,9 @@
 		await event.publish();
 		console.log("event id", event.id)
 		$questionId = event.id;
-		$qrCodeUrl = await QRCode.toDataURL(`${window.location.origin}/q/${$questionId}`);
+		$qrCodeUrl = await QRCode.toDataURL(`${window.location.origin}/q/${$questionId}`, {
+			width: 800,
+		});
 	}
 
 	function startTimer() {
@@ -55,6 +57,8 @@
 		if ($ndkReady) {
 			if ($ndk.activeUser) {
 				console.log('User:', $user);
+			} else {
+				login();
 			}
 		}
 	});
@@ -128,11 +132,6 @@
 		-webkit-appearance: none;
 		margin: 0;
 	}
-	:root {
-		display: grid;
-		place-items: center; /* shorthand for both horizontal and vertical centering */
-		height: 100%;
-	}
 	.qr-share img {
 		width: 100%;
 		border: 3px solid #eee;
@@ -145,6 +144,7 @@
 			display: flex;
 			margin: 0 auto;
 	    max-width: 250px;
+			border-radius: 50%;
 	}
 	.main-layout {
 		margin: auto;

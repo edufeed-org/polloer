@@ -18,10 +18,10 @@
 
 	let comment = '';
 	let comments = writable([]);
-	let question = writable('');
 
 	$effect(() => {
 		if ($ndkReady) {
+			console.log('ndk ready');
 			const sub = $ndk.subscribe({ kinds: [2222], '#E': [data.id] });
 			sub.on('event', (event) => {
 				$comments = [...$comments, event];
@@ -31,16 +31,16 @@
 	});
 </script>
 
-<div class="mx-auto flex flex-col items-center justify-center w-3/4">
+<div class="main-layout mx-auto flex flex-col items-center justify-center w-3/4">
 	{#await $ndk.fetchEvent(data.id) then question}
 		{#if question}
-			<div class="mb-4 w-full rounded border p-2">
-				<h2>Question: {question.content}</h2>
+			<div class="question mb-4 w-full rounded border p-4 text-xl">
+				<h2>Question:<br />{question.content}</h2>
 			</div>
 
 			<div class="w-full flex flex-col items-center justify-center gap-2 mb-2">
 				<h1 class="text-xl">Ideensammlung</h1>
-				<textarea class="w-full border" bind:value={comment} placeholder="Mein Kommentar"></textarea>
+				<textarea class="w-full border p-2" bind:value={comment} placeholder="Mein Kommentar"></textarea>
 				<button class="btn btn-success" onclick={() => submitComment()}>Absenden</button>
 			</div>
 		{:else}
@@ -56,3 +56,20 @@
 		{/each}
 	</div>
 </div>
+
+<style>
+    .main-layout {
+        margin: auto;
+        width: 100vw;
+        max-width: 600px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        gap: 5%;
+        height: 100%;
+    }
+		.question {
+				border-radius: 10px;
+				border-color: #ccc;
+		}
+</style>
