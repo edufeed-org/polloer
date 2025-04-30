@@ -9,6 +9,8 @@
 	import { Carta, Markdown, MarkdownEditor } from 'carta-md';
 	import 'carta-md/default.css'; /* Default theme */
 	import DOMPurify from 'dompurify';
+	import { Confetti } from "svelte-confetti"
+
 
     console.log("show reactions", showReactions, event)
 
@@ -20,6 +22,7 @@
 	let reactions = writable([]);
 	let reacted = writable(window.localStorage.getItem(event.id));
     let reaction = writable({})
+	let clicked = writable(false);
 
 	async function sendReaction() {
 		const reactionEvent = new NDKEvent($ndk, {
@@ -34,6 +37,7 @@
 		$reactions = Array.from(r);
 		window.localStorage.setItem(event.id, 'true');
 		$reacted = true;
+		$clicked = true
 	}
 
     async function deleteVote() {
@@ -66,9 +70,12 @@
 			<span>👍 {$reactions.length}</span>
 			<span class="thanks">Danke für deinen Vote!</span>
             <!-- <button onclick={() => deleteVote()} class="btn">Vote zurückziehen</button> -->
-		{:else if showReactions === "true"}
+			{:else if showReactions === "true"}
 			<button onclick={() => sendReaction()} class="like">👍</button>
 			<span>{$reactions.length}</span>
+		{/if}
+		{#if $clicked}
+			<Confetti />
 		{/if}
 	</div>
 </div>
