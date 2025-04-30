@@ -2,24 +2,28 @@
 	/** @type {import('./$types').PageProps} */
 	let { data } = $props();
 
-	import { onMount } from 'svelte';
-
 	import Comment from '$lib/components/Comment.svelte';
-	import { ndk, connected, ndkReady, user } from '$lib/stores';
+	import { ndk, ndkReady } from '$lib/stores';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { writable } from 'svelte/store';
-	import { login } from '$lib';
+	import { Carta, Markdown, MarkdownEditor } from 'carta-md';
+	import 'carta-md/default.css'; /* Default theme */
+	import DOMPurify from 'dompurify';
 
+	// Create a new instance of Carta (you might also want to add a sanitizer if you're processing user input)
+	let carta = new Carta({
+		sanitizer: DOMPurify.sanitize
+	});
 	function submitComment() {
 		const commentEvent = new NDKEvent($ndk, {
 			kind: 2222,
-			content: comment,
+			content: $comment,
 			tags: [['E', data.id]]
 		});
 		commentEvent.publish();
 	}
 
-	let comment = '';
+	let comment = writable('');
 	let comments = writable([]);
 
 	$effect(() => {
@@ -39,14 +43,15 @@
 		{#await $ndk.fetchEvent(data.id) then question}
 			{#if question}
 				<div class="question mb-4 w-full rounded border p-4 text-xl">
-					<h2>Question:<br />{question.content}</h2>
+					<h2>Question:<br />
+						<Markdown {carta} value={question.content} />
+				</h2>
 				</div>
 
 				<div class="mb-2 flex w-full flex-col items-center justify-center gap-2">
 					<h1 class="text-xl">Ideensammlung</h1>
-					<textarea class="w-full border p-2" bind:value={comment} placeholder="Mein Kommentar"
-					></textarea>
-					<button class="btn btn-success" onclick={() => submitComment()}>Absenden</button>
+					<MarkdownEditor bind:value={$comment} {carta} />
+					<button class="btn btn-primary mb-10" onclick={() => submitComment()}>Absenden</button>
 				</div>
 			{:else}
 				<p>Loading...</p>
@@ -64,10 +69,17 @@
 </div>
 
 <style>
+    :global(.carta-input) {
+        height: 100px !important;
+    }
+    :global(.carta-editor) {
+        width: 100% !important;
+    }
     .main-layout {
+				padding: 30px;
         margin: auto;
         width: 100vw;
-        max-width: 600px;
+        max-width: 700px;
         display: flex;
         justify-content: center;
         flex-direction: column;

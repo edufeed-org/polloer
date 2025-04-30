@@ -6,7 +6,14 @@
 	import { ndk, ndkReady, user } from '$lib/stores';
 	import { writable } from 'svelte/store';
 	import { login } from '$lib';
+	import { Carta, Markdown, MarkdownEditor } from 'carta-md';
+	import 'carta-md/default.css'; /* Default theme */
+	import DOMPurify from 'dompurify';
 
+	// Create a new instance of Carta (you might also want to add a sanitizer if you're processing user input)
+	let carta = new Carta({
+		sanitizer: DOMPurify.sanitize
+	});
 	let reactions = writable([]);
 	let reacted = writable(window.localStorage.getItem(event.id));
     let reaction = writable({})
@@ -47,7 +54,8 @@
 </script>
 
 <div class="comment w-full border p-2">
-	<p>{event.content}</p>
+	<Markdown value={event.content} {carta} />
+
 	<div class="flex gap-2 reactions">
 		{#if $reacted}
 			<span>👍 {$reactions.length}</span>

@@ -5,8 +5,15 @@
 	import { writable } from 'svelte/store';
 	import QRCode from 'qrcode';
 	import { login } from '$lib';
+	import { Carta, MarkdownEditor } from 'carta-md';
+	import 'carta-md/default.css'; /* Default theme */
+	import DOMPurify from 'dompurify';
 
-	let question = '';
+	// Create a new instance of Carta (you might also want to add a sanitizer if you're processing user input)
+	let carta = new Carta({
+		sanitizer: DOMPurify.sanitize
+	});
+	let question = writable('');
 	let questionId = writable(''); ;
 	let questionShortId = 0;
 	let qrCodeUrl = writable('');
@@ -30,7 +37,7 @@
 		questionShortId = 10000000 + Math.floor(Math.random() * 90000000);
 		const event = new NDKEvent($ndk, {
 			kind: 1342,
-			content: question,
+			content: $question,
 			tags: [['d', questionShortId + '']]
 		});
 		await event.publish();
@@ -52,7 +59,7 @@
 		}, 1000);
 	}
 
-	
+
 	$effect(() => {
 		if ($ndkReady) {
 			if ($ndk.activeUser) {
@@ -89,22 +96,18 @@
 		{#key $questionId}
 			{#if $questionId === ''}
 				<div>
-					<textarea
-						class="mb-4 w-full rounded border p-2"
-						placeholder="Type your question here..."
-						bind:value={question}
-					></textarea>
-					<button class="btn btn-primary rounded" onclick={postQuestion}> Post Question </button>
+					<MarkdownEditor bind:value={$question} {carta} />
+					<button class="btn btn-primary rounded mt-5" onclick={postQuestion}> Post Question </button>
 				</div>
 			{:else}
 				<div class="qr-share mt-4">
 					<h2 class="text-xl font-bold">Share Your Question</h2>
+					<h3 class="text-center short-id">{questionShortId}</h3>
 					<img src={$qrCodeUrl} alt="QR Code" class="mt-2" />
-					<p class="mb-5 text-center">Share this QR code or link:</p>
-					<p class="text-center">
-						<a href={`/q/${$questionId}`}>{`/q/`}<span class="font-bold">{questionShortId}</span></a>
+					<p class="mb-1 text-center">Share this QR code or link:</p>
+					<p class="text-center mb-2 text-xl">
+						<a href={`/q/${$questionId}`}>{`${window.location.origin}/q/`}<span class="font-bold">{questionShortId}</span></a>
 					</p>
-					<h3 class="text-center text-xl">{questionShortId}</h3>
 					<div class="mt-4">
 						<label for="timer" class="mb-2 block">Set Timer (seconds):</label>
 						<input type="number" id="timer" class="rounded border p-2" bind:value={timer} />
@@ -127,10 +130,23 @@
 </div>
 
 <style>
+	/* Optional styling */
+	:global(.carta-font-code) {
+			font-family: 'Monaco', monospace;
+			font-size: 1.1rem;
+			line-height: 1.1rem;
+			letter-spacing: normal;
+	}
+	:global(.carta-input) {
+  	height: 150px !important;
+	}
 	input[type='number']::-webkit-inner-spin-button,
 	input[type='number']::-webkit-outer-spin-button {
 		-webkit-appearance: none;
 		margin: 0;
+	}
+	.short-id {
+			font-size: 60px;
 	}
 	.qr-share img {
 		width: 100%;

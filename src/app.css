@@ -1,2 +1,10 @@
 @import 'tailwindcss';
 @plugin "daisyui";
+
+
+body, html, body > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
