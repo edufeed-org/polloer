@@ -4,6 +4,7 @@
 	import { NDKEvent, NDKNip07Signer, NDKPrivateKeySigner } from '@nostr-dev-kit/ndk';
 	import { writable } from 'svelte/store';
 	import QRCode from 'qrcode';
+	import { login } from '$lib';
 
 	let question = '';
 	let questionId = writable(''); ;
@@ -49,31 +50,7 @@
 		}, 1000);
 	}
 
-	async function login() {
-		if (window.nostr) {
-			const signer = new NDKNip07Signer();
-			$ndk.signer = signer;
-			$user = await signer.user();
-		} else {
-			const storedPrivateKey = window.localStorage.getItem('nostrPrivateKey');
-			if (storedPrivateKey) {
-				const privateKey = JSON.parse(storedPrivateKey);
-				console.log("stored private key", privateKey)
-				const signer = new NDKPrivateKeySigner(privateKey);
-				$ndk.signer = signer;
-				$user = await signer.user();
-			} else {
-				console.log('No private key found, generating a new one...');
-				const privateKey = NDKPrivateKeySigner.generate();
-				const signer = new NDKPrivateKeySigner(privateKey.privateKey);
-				console.log('Generated Private Key:', privateKey);
-				$ndk.signer = signer;
-				$user = await signer.user();
-				window.localStorage.setItem('nostrPrivateKey', JSON.stringify(privateKey.privateKey));
-			}
-		}
-	}
-
+	
 	$effect(() => {
 		if ($ndkReady) {
 			if ($ndk.activeUser) {
