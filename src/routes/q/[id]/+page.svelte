@@ -38,6 +38,7 @@
 			console.log('ndk ready');
 			const sub = $ndk.subscribe({ kinds: [2222], '#E': [data.id] });
 			sub.on('event', (event) => {
+				console.log(event);
 				$comments = [...$comments, event];
 				console.log(`${event.content}`);
 			});
@@ -69,7 +70,7 @@
 
 <div class="main-layout mx-auto flex w-3/4 flex-col items-center justify-center">
 			{#if $question}
-			<button class="btn" onclick={() => startReactions($question)}>Start Reaktionen</button>
+			<button class="btn btn-primary mb-4" onclick={() => startReactions($question)}>Reaktionen/Voting aktivieren</button>
 
 				<div class="question mb-4 w-full rounded border p-4 text-xl">
 					<h2 class="text-xl font-bold">Frage / Thema:</h2>

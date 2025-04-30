@@ -10,7 +10,7 @@
 	import 'carta-md/default.css'; /* Default theme */
 	import DOMPurify from 'dompurify';
 
-    console.log("show reactions", showReactions)
+    console.log("show reactions", showReactions, event)
 
 
 	// Create a new instance of Carta (you might also want to add a sanitizer if you're processing user input)
@@ -57,7 +57,9 @@
 </script>
 
 <div class="comment w-full border p-2">
-	<Markdown value={event.content} {carta} />
+	{#key event.content}
+		<Markdown {carta} value={event.content} />
+	{/key}
 
 	<div class="flex gap-2 reactions">
 		{#if $reacted}
