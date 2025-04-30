@@ -61,8 +61,9 @@
 </script>
 
 <div class="main-layout">
+    <img src="logo.png" alt="" class="logo">
 	{#if !$user}
-		<button class="btn btn-success" onclick={() => login()}>Login</button>
+		<div class="login"><button class="btn btn-primary" onclick={() => login()}>Login</button></div>
 	{/if}
 
 	{#if !$questionId}
@@ -135,6 +136,15 @@
 	.qr-share img {
 		width: 100%;
 		border: 3px solid #eee;
+	}
+	.login {
+      display: flex;
+      justify-content: center;
+	}
+	.logo {
+			display: flex;
+			margin: 0 auto;
+	    max-width: 250px;
 	}
 	.main-layout {
 		margin: auto;
