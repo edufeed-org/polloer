@@ -2,10 +2,13 @@
 	/** @type {import('./$types').PageProps} */
 	let { data } = $props();
 
+	import { onMount } from 'svelte';
+
 	import Comment from '$lib/components/Comment.svelte';
-	import { ndk, connected, ndkReady } from '$lib/stores';
+	import { ndk, connected, ndkReady, user } from '$lib/stores';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { writable } from 'svelte/store';
+	import { login } from '$lib';
 
 	function submitComment() {
 		const commentEvent = new NDKEvent($ndk, {
@@ -18,6 +21,14 @@
 
 	let comment = '';
 	let comments = writable([]);
+
+	onMount(async () => {
+		if (!$user) {
+			console.log('no user, logging in');
+			login();
+		}
+		
+	});
 
 	$effect(() => {
 		if ($ndkReady) {

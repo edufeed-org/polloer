@@ -24,6 +24,20 @@
 		$reacted = true;
 	}
 
+    async function deleteVote() {
+        const deletionEvent = new NDKEvent($ndk, {
+            kind: 5,
+            content: "User deleted vote",
+            tags: [
+                ["e", event.id],
+                ["k", 7]
+            ]
+        })
+        await deletionEvent.publish()
+        window.localStorage.removeItem(event.id)
+        $reacted = false
+    }
+
 	onMount(async () => {
 		if (!$user) {
 			console.log('no user, logging in');
@@ -41,6 +55,7 @@
 		{#if $reacted}
 			<span>👍 {$reactions.length}</span>
 			<span>Danke für deinen Vote!</span>
+            <button onclick={() => deleteVote()} class="btn">Vote zurückziehen</button>
 		{:else}
 			<button onclick={() => sendReaction()}>👍</button>
 			<span>{$reactions.length}</span>
