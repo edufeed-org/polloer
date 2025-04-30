@@ -1,5 +1,5 @@
 <script>
-	let { event } = $props();
+	let { event, showReactions } = $props();
 
 	import { onMount } from 'svelte';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
@@ -9,6 +9,9 @@
 	import { Carta, Markdown, MarkdownEditor } from 'carta-md';
 	import 'carta-md/default.css'; /* Default theme */
 	import DOMPurify from 'dompurify';
+
+    console.log("show reactions", showReactions)
+
 
 	// Create a new instance of Carta (you might also want to add a sanitizer if you're processing user input)
 	let carta = new Carta({
@@ -61,7 +64,7 @@
 			<span>👍 {$reactions.length}</span>
 			<span class="thanks">Danke für deinen Vote!</span>
             <!-- <button onclick={() => deleteVote()} class="btn">Vote zurückziehen</button> -->
-		{:else}
+		{:else if showReactions === "true"}
 			<button onclick={() => sendReaction()} class="like">👍</button>
 			<span>{$reactions.length}</span>
 		{/if}

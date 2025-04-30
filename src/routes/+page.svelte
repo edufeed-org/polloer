@@ -20,6 +20,7 @@
 	let timer = 0;
 	let votingEnabled = false;
 	let sessionId = '';
+	let event = writable();
 
 	async function joinSession() {
 		console.log('join ' + sessionId);
@@ -35,14 +36,14 @@
 	}
 	async function postQuestion() {
 		questionShortId = 10000000 + Math.floor(Math.random() * 90000000);
-		const event = new NDKEvent($ndk, {
-			kind: 1342,
+		$event = new NDKEvent($ndk, {
+			kind: 30342,
 			content: $question,
 			tags: [['d', questionShortId + '']]
 		});
-		await event.publish();
-		console.log("event id", event.id)
-		$questionId = event.id;
+		await $event.publishReplaceable();
+		console.log("event id", $event.id)
+		$questionId = `${$event.kind}:${$event.pubkey}:${$event.dTag}`;
 		$qrCodeUrl = await QRCode.toDataURL(`${window.location.origin}/q/${$questionId}`, {
 			width: 800,
 		});
@@ -58,7 +59,6 @@
 			}
 		}, 1000);
 	}
-
 
 	$effect(() => {
 		if ($ndkReady) {
