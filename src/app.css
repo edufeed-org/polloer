@@ -8,3 +8,11 @@ body, html, body > div {
     align-items: center;
     min-height: 100vh;
 }
+.carta-viewer ul {
+    list-style: disc;
+    padding: 0 25px;
+}
+.carta-viewer ol {
+    list-style: auto;
+    padding: 0 25px;
+}
