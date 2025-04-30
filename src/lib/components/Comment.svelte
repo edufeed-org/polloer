@@ -9,6 +9,7 @@
 
 	let reactions = writable([]);
 	let reacted = writable(window.localStorage.getItem(event.id));
+    let reaction = writable({})
 
 	async function sendReaction() {
 		const reactionEvent = new NDKEvent($ndk, {
@@ -17,6 +18,7 @@
 			tags: [['e', event.id]]
 		});
 		await reactionEvent.publish();
+        $reaction = reactionEvent;
 		const r = await $ndk.fetchEvents({ kinds: [7], '#e': [event.id] });
 		console.log('r', r);
 		$reactions = Array.from(r);
@@ -39,12 +41,7 @@
     }
 
 	onMount(async () => {
-		if (!$user) {
-			console.log('no user, logging in');
-			login();
-		}
 		const r = await $ndk.fetchEvents({ kinds: [7], '#e': [event.id] });
-		console.log('r', r);
 		$reactions = Array.from(r);
 	});
 </script>
@@ -55,7 +52,7 @@
 		{#if $reacted}
 			<span>👍 {$reactions.length}</span>
 			<span class="thanks">Danke für deinen Vote!</span>
-            <button onclick={() => deleteVote()} class="btn">Vote zurückziehen</button>
+            <!-- <button onclick={() => deleteVote()} class="btn">Vote zurückziehen</button> -->
 		{:else}
 			<button onclick={() => sendReaction()} class="like">👍</button>
 			<span>{$reactions.length}</span>

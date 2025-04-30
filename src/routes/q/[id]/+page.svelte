@@ -22,14 +22,6 @@
 	let comment = '';
 	let comments = writable([]);
 
-	onMount(async () => {
-		if (!$user) {
-			console.log('no user, logging in');
-			login();
-		}
-		
-	});
-
 	$effect(() => {
 		if ($ndkReady) {
 			console.log('ndk ready');
@@ -42,24 +34,27 @@
 	});
 </script>
 
-<div class="main-layout mx-auto flex flex-col items-center justify-center w-3/4">
-	{#await $ndk.fetchEvent(data.id) then question}
-		{#if question}
-			<div class="question mb-4 w-full rounded border p-4 text-xl">
-				<h2>Question:<br />{question.content}</h2>
-			</div>
+<div class="main-layout mx-auto flex w-3/4 flex-col items-center justify-center">
+	{#key $ndkReady}
+		{#await $ndk.fetchEvent(data.id) then question}
+			{#if question}
+				<div class="question mb-4 w-full rounded border p-4 text-xl">
+					<h2>Question:<br />{question.content}</h2>
+				</div>
 
-			<div class="w-full flex flex-col items-center justify-center gap-2 mb-2">
-				<h1 class="text-xl">Ideensammlung</h1>
-				<textarea class="w-full border p-2" bind:value={comment} placeholder="Mein Kommentar"></textarea>
-				<button class="btn btn-success" onclick={() => submitComment()}>Absenden</button>
-			</div>
-		{:else}
-			<p>Loading...</p>
-		{/if}
-	{:catch error}
-		<p>Error fetching question: {error.message}</p>
-	{/await}
+				<div class="mb-2 flex w-full flex-col items-center justify-center gap-2">
+					<h1 class="text-xl">Ideensammlung</h1>
+					<textarea class="w-full border p-2" bind:value={comment} placeholder="Mein Kommentar"
+					></textarea>
+					<button class="btn btn-success" onclick={() => submitComment()}>Absenden</button>
+				</div>
+			{:else}
+				<p>Loading...</p>
+			{/if}
+		{:catch error}
+			<p>Error fetching question: {error.message}</p>
+		{/await}
+	{/key}
 
 	<div class="mx-auto flex w-full flex-col items-center justify-center gap-5">
 		{#each $comments as event}

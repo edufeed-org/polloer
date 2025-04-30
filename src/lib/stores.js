@@ -4,7 +4,7 @@ import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 
 export let connected = writable(false);
 
-export const ndk = writable(new NDKSvelte);
+export const ndk = writable(new NDKSvelte());
 
 export const ndkReady = derived(ndk, $ndk => $ndk !== null);
 
