@@ -29,9 +29,10 @@
 			'#d': [sessionId + ''] // filter by `d` tag
 		};
 		console.log(filter);
-		const question = await $ndk.fetchEvent(filter);
+		const questionEvent = await $ndk.fetchEvent(filter);
 		console.log('question', question);
-		goto('/q/' + question.id);
+		$questionId = `${questionEvent.kind}:${questionEvent.pubkey}:${questionEvent.dTag}`;
+		goto('/q/' + $questionId);
 		login();
 	}
 	async function postQuestion() {
