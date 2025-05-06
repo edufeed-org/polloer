@@ -106,7 +106,7 @@
 <div class="main-layout mx-auto flex w-3/4 flex-col items-center justify-center">
 	{#key $question?.pubkey}
 		{#if $question}
-			{#if $user && $question?.pubkey === $user?.pubkey && $showReactions === "false"}
+			{#if $user && $question?.pubkey === $user?.pubkey && $showReactions === 'false'}
 				<button class="btn btn-primary mb-4" onclick={() => startReactions($question)}
 					>Reaktionen/Voting aktivieren</button
 				>
