@@ -1,6 +1,4 @@
-# README
-
-## Projektbeschreibung
+# PollOER
 
 <img src="https://pad.gwdg.de/uploads/101dc1e7-3268-4d0e-b130-fde274425be4.png" width="200" />
 
