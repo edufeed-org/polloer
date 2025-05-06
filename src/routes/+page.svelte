@@ -23,14 +23,11 @@
 	let event = writable();
 
 	async function joinSession() {
-		console.log('join ' + sessionId);
 		const filter = {
 			kinds: [30342],
 			'#d': [sessionId + ''] // filter by `d` tag
 		};
-		console.log(filter);
 		const questionEvent = await $ndk.fetchEvent(filter);
-		console.log('question', question);
 		$questionId = `${questionEvent.kind}:${questionEvent.pubkey}:${questionEvent.dTag}`;
 		goto('/q/' + $questionId);
 		login();
