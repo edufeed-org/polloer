@@ -1,7 +1,8 @@
 # README
 
 ## Projektbeschreibung
-![](https://pad.gwdg.de/uploads/101dc1e7-3268-4d0e-b130-fde274425be4.png =x200)
+
+![](https://pad.gwdg.de/uploads/101dc1e7-3268-4d0e-b130-fde274425be4.png)
 
 *Abb.: Projektsymbolik – Ein Nutzer poliert eine Umfrage (Symbolbild).*
 
