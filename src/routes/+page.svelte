@@ -25,7 +25,7 @@
 	async function joinSession() {
 		console.log('join ' + sessionId);
 		const filter = {
-			kinds: [1342],
+			kinds: [30342],
 			'#d': [sessionId + ''] // filter by `d` tag
 		};
 		console.log(filter);
