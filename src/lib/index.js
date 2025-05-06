@@ -5,11 +5,11 @@ import { get } from 'svelte/store';
 export async function login() {
 	if (window.nostr) {
 		const signer = new NDKNip07Signer();
+		await signer.user();
 		ndk.update((ndk) => {
 			ndk.signer = signer;
 			return ndk;
 		});
-		signer.user();
 	} else {
 		console.log('no extension');
 		const storedPrivateKey = window.localStorage.getItem('nostrPrivateKey');
